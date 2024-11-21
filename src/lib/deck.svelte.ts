@@ -80,7 +80,6 @@ export class Deck {
         }
         this.cards.sort((a, b) => a.id - b.id);
         this.cards.reverse()
-        console.log(this.cards);
     }
     shuffle(){
         let array = this.cards;
@@ -108,4 +107,3 @@ export class Deck {
         }
     }
 }
-

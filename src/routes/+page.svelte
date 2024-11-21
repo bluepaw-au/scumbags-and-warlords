@@ -3,7 +3,8 @@
 	import Button from "../components/button.svelte";
     import { Deck } from "$lib/deck.svelte";
     import { Player } from "$lib/player.svelte";
-	import { Game } from "$lib/game.svelte";
+	import { Game, type Trick } from "$lib/game.svelte";
+	import PlayerHand from "../components/player-hand.svelte";
 
     let deck = new Deck();
     let showDeck = $state(false);
@@ -13,49 +14,70 @@
     let player3 = new Player(2, "Friend");
     let player4 = new Player(3, "Buddy");
 
+    let currentPlayer = $state(player);
+
     let game = new Game([player, player2, player3, player4], deck);
+
+    function handlePlayTrick(player:Player, trick: Trick){
+        game.playTrick(player, trick);
+    }
+    function handleEndRound(){
+        game.endRound();
+    }
+    function setCurrentPlayer(player:Player){
+        currentPlayer = player;
+    }
 
 </script>
 
-<div class="p-4 absolute w-full bg-slate-800 h-20 flex flex-row align-middle items-center gap-4 z-50">
-    <Button cls="" action={() => showDeck = showDeck ? false : true}> {showDeck ? "Hide" : "Show"} Deck </Button>
-    <Button cls="" action={() => deck.dealHand(player, 8)}> Draw Hand </Button>
-    <Button cls="" action={() => { game.endGame(); }}> End Game </Button>
-    <Button cls="" action={() => { game.startGame();} }> Start Game </Button>
+<div class="p-4 w-full bg-slate-800 h-20 flex flex-row align-middle items-center gap-4 z-50">
+    <Button onAction={() => { game.endGame(); }}> End Game </Button>
+    <Button onAction={() => { game.startGame();} }> Start Game </Button>
     <p class="text-white">Cards in Deck: {deck.cards.length}</p>
 
     <!-- TODO: Work out how to send selected cards to the playTrick function... -->
-    <Button cls="" action={() => { game.playTrick(player, player.hand.selected);} }> Play Trick </Button>
 </div>
 
+<!-- DECK CONTAINER -->
 <div class={(showDeck ? '' : 'hidden') + " deck-container absolute bottom-0 left-0 right-0 top-20 overflow-y-auto bg-slate-800 bg-opacity-50 p-12 max-w-full"}>
     <div class="deck flex flex-row justify-center flex-wrap gap-4 max-w-6xl">
     {#each deck.cards as card, i}
-        <Card cardIndex={i} {card} selectable={false} isSelected></Card>
+        <Card selected cardIndex={i} {card} ></Card>
     {/each}
     </div>
 </div>
 
+<!-- PLAYER LIST -->
 <div class="playerList bg-slate-700">
     <h3 class="font-semibold prose-lg min-w-60 text-white mb-2">Players</h3>
     <div class="players flex flex-col gap-3">
         {#each game.players as player, i}
-            <div class="player bg-slate-600 flex flex-row justify-between px-4 py-2 text-white" id={player.id.toString()}>
+            <button onclick={() => setCurrentPlayer(player)} class={"player flex flex-row justify-between px-4 py-2 text-white" + (currentPlayer == player ? ' bg-yellow-700' : ' bg-slate-600')} id={player.id.toString()}>
                 <h5>{player.name}</h5>
                 <h5>{player.hand.length}</h5>
-            </div>
+            </button>
         {/each}
     </div>
 </div>
 
-<div class="hand-container fixed bottom-0 w-full h-1/2 overflow-x-scroll">
-    <div class="hand flex flex-row gap-2 p-8 absolute bottom-0 w-full text-center">
-        {#each player.hand as card, i}
-            <Card cardIndex={i} {card} selectable={true}></Card>
-        {/each}
+<!-- TABLE -->
+<div class="table-container flex-initial">
+    <div class="game-table flex flex-col justify-center items-center gap-4 p-4 bg-green-800 min-w-[80%] min-h-96">
 
+        <div class={"action-bar p-2 flex justify-center gap-2" + (game.latestTrick.cards.length == 0 ? " hidden" : "")}>
+            <Button onAction={() => { handleEndRound() } }> End Round </Button>
+        </div>
+
+        <div class="table-card-container flex flex-row justify-center gap-2">
+            {#each game.latestTrick.cards as card, i}
+                <Card cardIndex={i} {card} selected={false}></Card>
+            {/each}
+        </div>
     </div>
 </div>
+
+
+<PlayerHand player={currentPlayer} playTrick={handlePlayTrick}></PlayerHand>
 
 <style>
     .playerList{

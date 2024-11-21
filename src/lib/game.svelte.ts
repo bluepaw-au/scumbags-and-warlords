@@ -11,73 +11,121 @@ export class Game {
     deck: Deck;
     inProgress: boolean = false;
 
-    latestTrick: Trick = {cards:[]};
-    round: Array<Trick> = [];
+    latestTrick: Trick = $state({cards:[]});
+    currentRound: Array<Trick> = [];
+    roundHistory: Array<any> = [];
 
     constructor(players: Array<Player>, deck:Deck){
         this.players = players;
         this.deck = deck;
     }
 
+    endRound(){
+        this.roundHistory.push(this.currentRound);
+        this.latestTrick.cards = [];
+        this.currentRound = [];
+    }
+
     playTrick(player:Player, trick:Trick){
         if(this.isTrickValid(trick)){
+            console.groupEnd();
+            this.currentRound.push(this.latestTrick);
             this.latestTrick.cards = [];
             trick.cards.forEach((card)=>{
                 this.latestTrick.cards.push(player.playCard(card));
             })
+            console.log("Cards Played: ", this.latestTrick.cards);
+            return true;
+        } else {
+            return false;
         }
     }
 
     isTrickValid(trick:Trick){
         
+        console.group("IS TRICK VALID?: ", trick);
+
         // Invalid Trick
         if (trick.cards == undefined || trick.cards.length < 1){
+            console.error("INVALID: ", "Trick undefined or empty");
             return false;
         }
+        console.debug("CONTINUE: ", "Trick is not empty.");
 
-        // -------------------------------------------------------
-        // Trick must be a joker
-        if (trick.cards[0].getValueLabel() == "Joker"){
+
+        // ------------------------------------------------------------
+        // MANDATORY: All tricks must consist of cards with equal value
+        // ------------------------------------------------------------
+
+        let mismatches: PlayingCard[];
+        mismatches = trick.cards.filter((card, i, cards) => card.value != cards[0].value);
+        if (mismatches.length != 0){
+            console.error("INVALID: ", "Trick consists of more than one value.");
+            return false;
+        }
+        console.debug("CONTINUE: ", "Trick conists of a single value.");
+
+        // -------------------- //
+        // SPECIAL TRICK CHECKS //
+        // -------------------- //
+
+        // ----------------------------------------------- //
+        // 1. TRUMP
+        // Trick contains a joker - beats all other tricks
+        // ----------------------------------------------- //
+        if (trick.cards[0].valueLabel == "Joker"){
+            console.log("VALID: ", "Trick is a Joker! WOW! WOW! WOW!");
             return true;
+        }
+        console.debug("CONTINUE: ", "Trick is NOT a trump.");
+
+
+        if (this.latestTrick.cards.length == trick.cards.length){
+            // -------------------------------------------- //
+            // 2. COPYCAT
+            // Trick is identical to current trick
+            // -------------------------------------------- //
+            mismatches = trick.cards.filter((card, i) => card.value != this.latestTrick.cards[i].value);
+            if (mismatches.length == 0){
+                console.log("VALID: ", "Trick is identical to last trick. Skip the next players turn.");
+                return true;
+            }
+            console.debug("CONTINUE: ", "Trick is NOT a copycat.");
         }
         
-        // -------------------------------------------------------
-        // OR Trick must be identical to current trick
-        let isIdentical = true;
-        this.latestTrick.cards.forEach((card, i)=>{
-            if (trick.cards[i].getValue() != card.getValue()){
-                isIdentical = false;
-            }
-        });
-        if (isIdentical){ 
-            return true;
-        }
+        if (this.latestTrick.cards.length > 0){
+            // --------------------- //
+            // STANDARD TRICK CHECKS //
+            // --------------------- //
 
-        // -------------------------------------------------------
-        // OR Trick must only consist of cards with the same value
-        trick.cards.forEach((card)=>{
-            if (card.getValue() != trick.cards[0].getValue()){
+            // -------------------------------------------------------
+            // 1. HIGHER VALUE
+            // Standard tricks must be a higher value than current trick
+            // -------------------------------------------------------
+            if (trick.cards[0].value <= this.latestTrick.cards[0].value) {
+                console.error("INVALID: ", "Trick value is lower than current trick");
                 return false;
             }
-        });
+            console.debug("CONTINUE: ", "Trick value is higher than current trick.");
 
-        // +++
-        // AND Trick must be higher than current trick
-        let isHigherValue = false;
-        if(this.latestTrick.cards[0].getValue() == undefined){
-            isHigherValue = true;
-        } else if (trick.cards[0].getValue() > this.latestTrick.cards[0].getValue()) {
-            isHigherValue = true;
-        }
-        if (!isHigherValue){ return false; }
+            // ----------------------------------------------------------------
+            // 2. EQUAL OR HIGHER CARD COUNT
+            // Standard tricks must have equal or greater number of cards than current trick
+            // -----------------------------------------------------------------
+            if (trick.cards.length < this.latestTrick.cards.length){
+                console.error("INVALID: ", "Trick has less cards than current trick.");
+                return false;
+            }
 
-        // +++
-        // AND Trick must have equal or greater number of cards than current
-        let isEqualOrMoreCards = false;
-        if (trick.cards.length >= this.latestTrick.cards.length){
-            isEqualOrMoreCards = true;
+        } else {
+            console.debug("CONTINUE: ", "Trick is the first trick of round.");
         }
-        return isEqualOrMoreCards;
+
+        console.log("VALID: ", "Trick is a valid standard trick.");
+        return true;
+
+
+
     }
 
     addPlayer(player: Player){
@@ -95,6 +143,7 @@ export class Game {
         this.inProgress = false;
         this.deck.reset();
         this.deck.shuffle();
+        this.latestTrick.cards = [];
         this.players.forEach((player) => {
             player.resetHand();
         })
