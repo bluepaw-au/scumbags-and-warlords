@@ -3,17 +3,36 @@
 
 
     interface Props {
-        cls: string,
         children: Snippet,
-        action: Function
+        classes?: string,
+        onAction: Function,
+        disabled?: boolean,
+        visible?: boolean,
     }
 
-    let {children, action, cls = "" }: Props = $props();
+    let {children, onAction, classes, disabled = false, visible = true }: Props = $props();
 
     let buttonAction = () => {
-        action();
+        onAction();
     }
 
 </script>
 
-<button class="bg-white border-2 rounded-md text-slate-800 px-4 py-2" onclick={buttonAction}>{@render children()}</button>
+<button class:hidden={!visible} class={(classes ? " " + classes : "")} onclick={buttonAction} {disabled}>{@render children()}</button>
+
+<style>
+    button{
+        background-color: #ffffff;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+    }
+
+    button.hidden{
+        opacity: 0;
+    }
+
+    button:disabled{
+        opacity: 0.5;
+        pointer-events: none;
+    }
+</style>
