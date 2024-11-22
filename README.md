@@ -1,4 +1,4 @@
-# Scumbags & Warlords - Svelte App
+# Scumbags & Warlords - Svelte App [WIP]
 (A.K.A: President, Asshole.)
 
 This project is a Scumbags & Warlords web-app game made with Svelte.
