@@ -23,8 +23,8 @@
     }
 
 </script>
-<div class="card-container" {style}>
-    <button class:selected class={card.getSuit() + (onSelect ? " selectable hover:bg-amber-100 hover:shadow-lg hover:border-amber-400 hover:shadow-amber-500" : "") + " card border-slate-300 border-2  bg-slate-50 rounded-lg mx-0"} onclick={selectCard} tabindex="{cardIndex}">
+<div class="card-container font-sans" {style}>
+    <button class:selected class={card.getSuit() + (onSelect ? " selectable hover:bg-sun-100 hover:shadow-lg hover:border-sun-400 hover:shadow-sun-500" : "") + " card border-gray-300 border-2  bg-gray-50 rounded-lg mx-0"} onclick={selectCard} tabindex="{cardIndex}">
 
         <div class="face p-3 flex flex-col">
 
@@ -33,7 +33,7 @@
                 <div class="badge-suit text-2xl font-bold">{card.getSuitLabel()}</div>
             </div>
 
-            <div class="badge-center text-6xl font-bold text-center">
+            <div class="badge-center text-8xl font-bold text-center">
                 {card.getSuitLabel()}
             </div>
 

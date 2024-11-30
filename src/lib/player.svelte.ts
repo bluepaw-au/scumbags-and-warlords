@@ -5,10 +5,13 @@ export class Player {
     name: string = 'Player';
     hand: Array<PlayingCard> = $state([]);
     selectedCards: Array<PlayingCard> = $state([]);
+    host: boolean = false;
+    skipped: boolean = false;
 
-    constructor(id:number, name:string){
+    constructor(id:number, name:string, host:boolean){
         this.id = id;
         this.name = name;
+        this.host = host;
     }
 
     playCard(card: PlayingCard){
@@ -18,7 +21,6 @@ export class Player {
         }
         return card;
     }
-
     sortHand(){
         this.hand.sort((a, b) => a.value - b.value);
     }
