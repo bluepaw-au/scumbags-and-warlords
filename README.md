@@ -1,23 +1,16 @@
-# sv
+# Scumbags & Warlords - Svelte App [WIP]
+(A.K.A: President, Asshole.)
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This project is a Scumbags & Warlords web-app game made with Svelte.
 
-## Creating a project
+Basic Rules: https://www.pagat.com/climbing/president.html
 
-If you're seeing this, you've probably already done this step. Congrats!
 
-```bash
-# create a new project in the current directory
-npx sv create
+## Getting Started - For Dev
 
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
+1. Clone this repository.
+2. Run `npm install`.
+3. Start the development server:
 ```bash
 npm run dev
 
@@ -25,14 +18,12 @@ npm run dev
 npm run dev -- --open
 ```
 
+
 ## Building
 
-To create a production version of your app:
-
+To create a production version:
 ```bash
 npm run build
 ```
 
 You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
