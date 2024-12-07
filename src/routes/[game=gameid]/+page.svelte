@@ -9,30 +9,40 @@
     let deck = new Deck();
     let showDeck = $state(false);
 
-    let player = new Player(0, "Sam", true);
-    let player2 = new Player(1, "Cat", false);
-    let player3 = new Player(2, "Friend", false);
-    let player4 = new Player(3, "Buddy", false);
+    let myplayers = [
+        new Player(0, "Sam", true),
+        new Player(1, "Cat", false),
+        new Player(2, "Friend", false),
+        new Player(3, "Buddy", false),
+        new Player(4, "Pal", false),
+        new Player(5, "Guy", false),
+        new Player(6, "Chum", false)
+    ]
 
     
 
-    let game = new Game([player, player2, player3, player4], deck);
+    let game = new Game(myplayers, deck);
 
     function handlePlayTrick(player:Player, trick: Trick){
         game.playTrick(player, trick);
+        switchToPlayer(game.getCurrentPlayer());
     }
 
     function handleSkipTurn(player:Player){
-        game.skipPlayerTurn(player);
+        switchToPlayer(game.getNextPlayer(player));
+        game.skipPlayerTurn(player, false);
     }
 
-    function handlenextRound(){
-        game.startNextRound();
+    function handlenextRound(player: Player){
+        game.startRound(player);
     }
 
 
     // Which player's hand the UI is showing - Not for turn management
-    let playingAs = $state(player);
+    /**
+     * DEV ONLY - The player viewpoint that is shown by the UI.
+     */
+    let playingAs = $state(game.players[0]);
 
     function switchToPlayer(player:Player){
         playingAs = player;
@@ -55,26 +65,38 @@
 <div class="table-container flex-initial absolute left-96 right-96 bottom-0 top-[15vh]">
     <div class="game-table flex flex-col items-center gap-4 p-4 bg-felt-800 h-full rounded-t-3xl">
 
-        {#if game.roundWinner == playingAs}
+        {#if playingAs.isRoundWinner}
             <div class="action-bar p-2 flex flex-col text-center justify-center gap-2">
                 <h3 class="text-xl text-white">You win the Hand</h3>
-                <Button onAction={() => { handlenextRound() } }>  Start the Next Round </Button>
+                <Button onAction={() => { handlenextRound(playingAs) } }>  Start the Next Round </Button>
             </div>
+        {:else if playingAs.isMyTurn}
+            <div class="action-bar p-2 flex flex-col text-center justify-center gap-2">
+                <h3 class="text-xl text-white">Your Turn</h3>
+            </div>
+        {:else}
+            <div class="action-bar p-2 flex flex-col text-center justify-center gap-2">
+                <h3 class="text-xl text-white">{game.getCurrentPlayer().name + "'s Turn"}</h3>
+            </div>
+            
         {/if}
 
         <div class="table-card-container flex flex-row justify-center gap-2">
-            {#each game.latestTrick.cards as card, i}
-                <Card cardIndex={i} {card} selected={false}></Card>
-            {/each}
+            {#if game.currentRoundTricks[0]}
+                {#each game.currentRoundTricks[0] as card, i}
+                    <Card cardIndex={i} {card} selected={false}></Card>
+                {/each}
+            {/if}
         </div>
+
     </div>
 </div>
 
 <!-- GAME CONTROLS -->
-<div class:hidden={!playingAs.host} class="game-control bg-gray-950/25 rounded-lg right-8 top-[4vh] absolute p-4">
+<div class:hidden={!playingAs.isHost} class="game-control bg-gray-950/25 rounded-lg right-8 top-[4vh] absolute p-4">
     <h3 class="font-sans font-bold text-lg min-w-60 text-gray-300 mb-2">Host Controls</h3>
     <div class="controls flex flex-col gap-3 min-w-60">
-        <Button onAction={() => { game.startGame();} } disabled={game.gameInProgress}> Start Game </Button>
+        <Button onAction={() => { game.startGame(playingAs);} } disabled={game.gameInProgress}> Start Game </Button>
         <Button onAction={() => { game.endGame(); }} disabled={!game.gameInProgress}> End Game </Button>
     </div>
     <p class="font-sans font-normal text-md min-w-60 text-gray-300 mt-2">Cards in Deck: {deck.cards.length}</p>
@@ -90,15 +112,20 @@
         {#each game.players as player, i}
             <button onclick={() => switchToPlayer(player)} class="group relative flex flex-row rounded justify-between px-4 py-2 {(playingAs == player ? 'is-active bg-sun-500' : 'bg-felt-800/25 hover:bg-felt-500/25')}" id={player.id.toString()}>
                 
-                <span class="text-lg text-gray-300 group-hover:text-white group-[.is-active]:text-sun-950">{#if player.host}<span class="mr-2">👑</span>{/if}{player.name}</span>
+                <span class="text-lg text-gray-300 group-hover:text-white group-[.is-active]:text-sun-950">{#if player.isHost}<span class="mr-2">👑</span>{/if}{player.name}</span>
                 <span class="text-lg text-gray-300 group-hover:text-white group-[.is-active]:text-sun-950">{player.hand.length}</span>
 
-                {#if player == game.currentTurnPlayer}<span class="absolute w-full translate-x-full text-white text-left text-lg"> MY TURN </span>{/if}
-                {#if player != game.currentTurnPlayer && player.skipped}<span class="absolute w-full translate-x-full text-white text-left text-lg"> SKIPPED </span>{/if}
+                {#if player.isFinished && game.gameInProgress}
+                    <span class="absolute w-full translate-x-full text-white text-left text-lg"> FINISHED </span>
+                {:else if player.isMyTurn}
+                    <span class="absolute w-full translate-x-full text-white text-left text-lg"> MY TURN </span>
+                {:else if player.isSkipped}
+                    <span class="absolute w-full translate-x-full text-white text-left text-lg"> SKIPPED </span>
+                {/if}
             </button>
         {/each}
     </div>
 </div>
 
 
-<PlayerHand player={playingAs} myTurn={playingAs == game.currentTurnPlayer} playTrick={handlePlayTrick} skipTurn={handleSkipTurn}></PlayerHand>
+<PlayerHand player={playingAs} playTrick={handlePlayTrick} skipTurn={handleSkipTurn} roundInProgress={game.roundInProgress}></PlayerHand>

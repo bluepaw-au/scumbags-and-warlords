@@ -5,8 +5,12 @@
 	import { Player } from '$lib/player.svelte';
 	import { Game, type Trick } from '$lib/game.svelte';
 
-    let lobbyCode = "";
+    let joinCode: Number;
+    let lobbyCode: Number;
 
+    let generateLobbyCode = function(){
+        lobbyCode = Math.floor(1000 + Math.random() * 9000);
+    }
 
 </script>
 
@@ -18,7 +22,7 @@
 
         <div class="flex flex-row gap-8 justify-center">
 
-            <a href="/game" class="group transition-colors inline-flex border-4 p-1 border-sun-500/25 hover:border-sun-500 rounded-lg disabled:opacity-50">
+            <a href={(lobbyCode) ? '/' + lobbyCode : ''} onclick={() => generateLobbyCode()} class="group transition-colors inline-flex border-4 p-1 border-sun-500/25 hover:border-sun-500 rounded-lg disabled:opacity-50">
                 <div class="transition-colors btn-inner rounded py-3 px-4 bg-sun-500 group-hover:bg-sun-400">
                     <span class="transition-colors text-xl text-sun-950 group-hover:text-sun-800 font-serif font-bold">
                         Create New Lobby
@@ -29,9 +33,9 @@
 
         <div class="flex flex-row gap-8 justify-center items-center">
 
-            <input name="roomcode" bind:value={lobbyCode} type="text" placeholder="CODE" maxlength=4 class="text-xl tracking-[0.5rem] w-36 text-center h-12 p-8"/>
+            <input name="roomcode" bind:value={joinCode} type="text" placeholder="CODE" maxlength=4 class="text-xl tracking-[0.5rem] w-36 text-center h-12 p-8"/>
 
-            <a href="/{lobbyCode}" class="group transition-colors inline-flex border-4 p-1 border-gray-300/25 hover:border-gray-200 rounded-lg disabled:opacity-50">
+            <a href="/{joinCode}" class="group transition-colors inline-flex border-4 p-1 border-gray-300/25 hover:border-gray-200 rounded-lg disabled:opacity-50">
                 <div class="transition-colors btn-inner rounded py-3 px-4 bg-gray-300/90 group-hover:bg-gray-200">
                     <span class="transition-colors text-xl text-gray-950 group-hover:text-gray-700 font-serif font-bold">
                         Join Lobby
