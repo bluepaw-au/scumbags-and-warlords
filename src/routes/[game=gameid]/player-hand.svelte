@@ -3,7 +3,7 @@
     import { Game, type Trick } from "$lib/game.svelte";
 	import type { Player } from "$lib/player.svelte";
 
-	import Button from "$lib//button.svelte";
+	import GameButton from "$lib/game-button.svelte";
 	import Card from "$lib//card.svelte";
 
     // ♠♥♦♣♤♡♢♧
@@ -49,8 +49,8 @@
 <div class="hand-container fixed bottom-0 left-0 right-0 h-auto flex flex-col justify-end flex-1">
     
     <div class:hidden={player.hand.length == 0 || player.isMyTurn == false || player.isRoundWinner} class="action-bar p-4 flex justify-center gap-2">
-        <Button onAction={() => { tryTrick(player, player.selectedCards) } } disabled={player.selectedCards.cards.length < 1 || !player.isMyTurn}> Play Trick </Button>
-        <Button onAction={() => { skipTurn(player) } } disabled={!player.isMyTurn || !roundInProgress}> Skip Turn </Button>
+        <GameButton onAction={() => { tryTrick(player, player.selectedCards) } } disabled={player.selectedCards.cards.length < 1 || !player.isMyTurn}> Play Trick </GameButton>
+        <GameButton onAction={() => { skipTurn(player) } } disabled={!player.isMyTurn || !roundInProgress}> Skip Turn </GameButton>
     </div>
 
     <div class="scroll-container w-full flex-1 pt-20 pb-8 px-8 h-auto">

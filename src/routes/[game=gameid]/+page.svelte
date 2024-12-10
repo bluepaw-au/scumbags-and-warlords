@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Card from "$lib/card.svelte";
-	import Button from "$lib/button.svelte";
+	import GameButton from "$lib/game-button.svelte";
     import { Deck } from "$lib/deck.svelte";
     import { Player } from "$lib/player.svelte";
 	import { Game, type Trick } from "$lib/game.svelte";
@@ -68,7 +68,7 @@
         {#if playingAs.isRoundWinner}
             <div class="action-bar p-2 flex flex-col text-center justify-center gap-2">
                 <h3 class="text-xl text-white">You win the Hand</h3>
-                <Button onAction={() => { handlenextRound(playingAs) } }>  Start the Next Round </Button>
+                <GameButton onAction={() => { handlenextRound(playingAs) } }>  Start the Next Round </GameButton>
             </div>
         {:else if playingAs.isMyTurn}
             <div class="action-bar p-2 flex flex-col text-center justify-center gap-2">
@@ -96,8 +96,8 @@
 <div class:hidden={!playingAs.isHost} class="game-control bg-gray-950/25 rounded-lg right-8 top-[4vh] absolute p-4">
     <h3 class="font-sans font-bold text-lg min-w-60 text-gray-300 mb-2">Host Controls</h3>
     <div class="controls flex flex-col gap-3 min-w-60">
-        <Button onAction={() => { game.startGame(playingAs);} } disabled={game.gameInProgress}> Start Game </Button>
-        <Button onAction={() => { game.endGame(); }} disabled={!game.gameInProgress}> End Game </Button>
+        <GameButton onAction={() => { game.startGame(playingAs);} } disabled={game.gameInProgress}> Start Game </GameButton>
+        <GameButton onAction={() => { game.endGame(); }} disabled={!game.gameInProgress}> End Game </GameButton>
     </div>
     <p class="font-sans font-normal text-md min-w-60 text-gray-300 mt-2">Cards in Deck: {deck.cards.length}</p>
 
@@ -110,7 +110,7 @@
 
     <div class="players flex flex-col gap-3 font-serif">
         {#each game.players as player, i}
-            <button onclick={() => switchToPlayer(player)} class="group relative flex flex-row rounded justify-between px-4 py-2 {(playingAs == player ? 'is-active bg-sun-500' : 'bg-felt-800/25 hover:bg-felt-500/25')}" id={player.id.toString()}>
+            <GameButton onAction={() => switchToPlayer(player)} classes="group relative flex flex-row rounded justify-between px-4 py-2 {(playingAs == player ? 'is-active bg-sun-500' : 'bg-felt-800/25 hover:bg-felt-500/25')}">
                 
                 <span class="text-lg text-gray-300 group-hover:text-white group-[.is-active]:text-sun-950">{#if player.isHost}<span class="mr-2">👑</span>{/if}{player.name}</span>
                 <span class="text-lg text-gray-300 group-hover:text-white group-[.is-active]:text-sun-950">{player.hand.length}</span>
@@ -122,7 +122,7 @@
                 {:else if player.isSkipped}
                     <span class="absolute w-full translate-x-full text-white text-left text-lg"> SKIPPED </span>
                 {/if}
-            </button>
+            </GameButton>
         {/each}
     </div>
 </div>
